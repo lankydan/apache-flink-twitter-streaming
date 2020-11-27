@@ -1,0 +1,50 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    // flink
+    compile group: 'org.apache.flink', name: 'flink-streaming-java_2.11', version: '1.11.2'
+
+    /*
+    Get this error if this dependency is not included (doesn't seem to be much info on it online)
+    https://stackoverflow.com/questions/63032060/upgraded-flink-from-1-10-to-1-11-met-error-no-executorfactory-found-to-execute
+
+    Exception in thread "main" java.lang.IllegalStateException: No ExecutorFactory found to execute the application.
+	at org.apache.flink.core.execution.DefaultExecutorServiceLoader.getExecutorFactory(DefaultExecutorServiceLoader.java:84)
+	at org.apache.flink.streaming.api.environment.StreamExecutionEnvironment.executeAsync(StreamExecutionEnvironment.java:1801)
+	at org.apache.flink.streaming.api.environment.StreamExecutionEnvironment.execute(StreamExecutionEnvironment.java:1711)
+	at org.apache.flink.streaming.api.environment.LocalStreamEnvironment.execute(LocalStreamEnvironment.java:74)
+	at org.apache.flink.streaming.api.environment.StreamExecutionEnvironment.execute(StreamExecutionEnvironment.java:1697)
+	at org.apache.flink.streaming.api.environment.StreamExecutionEnvironment.execute(StreamExecutionEnvironment.java:1679)
+	at dev.lankydan.flink.kafka.consumer.Application.main(Application.java:24)
+     */
+    compile group: 'org.apache.flink', name: 'flink-clients_2.11', version: '1.11.2'
+
+    // flink twitter connector (not needed if using kafka version)
+    compile group: 'org.apache.flink', name: 'flink-connector-twitter_2.11', version: '1.11.2'
+    // Flink shades jackson to prevent conflicts with the one I import
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.3'
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.11.3'
+    // Seems that this connector uses this logging library
+    compile group: 'commons-logging', name: 'commons-logging', version: '1.2'
+    // Web client
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+
+    // kafka + flink
+//    compile group: 'org.apache.flink', name: 'flink-connector-kafka_2.11', version: '1.11.2'
+
+    // logging
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.0'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.0'
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.30'
+}
