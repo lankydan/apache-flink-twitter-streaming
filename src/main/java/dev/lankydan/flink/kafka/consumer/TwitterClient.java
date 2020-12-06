@@ -11,6 +11,8 @@ import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
@@ -40,6 +42,34 @@ public class TwitterClient {
         Request request = new Request.Builder().get()
             .url(
                 "https://api.twitter.com/2/tweets?ids=" + id +
+                    "&expansions=geo.place_id,author_id" +
+                    "&tweet.fields=public_metrics,entities,created_at,author_id" +
+                    "&place.fields=contained_within,country,country_code,full_name,geo,id,name,place_type" +
+                    "&user.fields=name,username,public_metrics")
+            .addHeader("Authorization", "Bearer " + bearerToken)
+            .build();
+        CompletableFuture<String> future = new CompletableFuture<>();
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                future.completeExceptionally(e);
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                future.complete(response.body().string());
+            }
+        });
+        return future;
+    }
+
+    public CompletableFuture<String> getRecentTweetsByAuthor(String authorId) {
+        String today = Instant.now().truncatedTo(ChronoUnit.DAYS).toString();
+        Request request = new Request.Builder().get()
+            .url(
+                "https://api.twitter.com/2/tweets/search/recent?query=from:" + authorId +
+                    "&start_time=" + today +
                     "&expansions=geo.place_id,author_id" +
                     "&tweet.fields=public_metrics,entities,created_at,author_id" +
                     "&place.fields=contained_within,country,country_code,full_name,geo,id,name,place_type" +
