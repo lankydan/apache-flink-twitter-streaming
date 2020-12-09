@@ -40,9 +40,6 @@ dependencies {
     // Web client
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
 
-    // kafka + flink
-//    compile group: 'org.apache.flink', name: 'flink-connector-kafka_2.11', version: '1.11.2'
-
     // logging
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.0'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.0'

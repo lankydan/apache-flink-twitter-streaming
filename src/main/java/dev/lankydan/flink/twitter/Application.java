@@ -34,28 +34,6 @@ import java.util.stream.Collectors;
 
 public class Application {
 
-    // Kafka version
-    /*public static void main(String[] args) throws Exception {
-        String inputTopic = "flink_input";
-        String outputTopic = "flink_output";
-        // this group id is unique for consumers and don't need to find some property from a kafka instance
-        String consumerGroup = "dan";
-        String address = "localhost:9092";
-        StreamExecutionEnvironment environment = StreamExecutionEnvironment
-            .getExecutionEnvironment();
-        FlinkKafkaConsumer<String> flinkKafkaConsumer = Consumer.createStringConsumerForTopic(
-            inputTopic,
-            address,
-            consumerGroup
-        );
-
-        DataStream<String> stringInputStream = environment.addSource(flinkKafkaConsumer);
-
-        stringInputStream.filter(value -> value.startsWith("asd")).print();
-
-        environment.execute();
-    }*/
-
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment environment = StreamExecutionEnvironment
             .getExecutionEnvironment();
