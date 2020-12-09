@@ -22,7 +22,7 @@ public class Result {
             "========\n";
     }
 
-    static class Tweet {
+    public static class Tweet {
         private List<String> mentions;
         private int retweetCount;
         private int replyCount;
