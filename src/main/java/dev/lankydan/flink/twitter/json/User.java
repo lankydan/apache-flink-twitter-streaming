@@ -1,4 +1,4 @@
-package dev.lankydan.flink.kafka.consumer;
+package dev.lankydan.flink.twitter.json;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

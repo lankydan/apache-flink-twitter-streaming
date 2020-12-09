@@ -1,4 +1,4 @@
-package dev.lankydan.flink.kafka.consumer;
+package dev.lankydan.flink.twitter.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,5 +1,6 @@
-package dev.lankydan.flink.kafka.consumer;
+package dev.lankydan.flink.twitter.source;
 
+import dev.lankydan.flink.twitter.client.TwitterClient;
 import org.apache.flink.streaming.connectors.twitter.TwitterSource;
 
 import java.io.IOException;

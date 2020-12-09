@@ -1,8 +1,16 @@
-package dev.lankydan.flink.kafka.consumer;
+package dev.lankydan.flink.twitter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import dev.lankydan.flink.twitter.client.TwitterClient;
+import dev.lankydan.flink.twitter.data.Result;
+import dev.lankydan.flink.twitter.json.EnrichedTweet;
+import dev.lankydan.flink.twitter.json.EnrichedTweetData;
+import dev.lankydan.flink.twitter.json.Entities;
+import dev.lankydan.flink.twitter.json.Mention;
+import dev.lankydan.flink.twitter.json.Tweet;
+import dev.lankydan.flink.twitter.source.TwitterSourceCreator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
