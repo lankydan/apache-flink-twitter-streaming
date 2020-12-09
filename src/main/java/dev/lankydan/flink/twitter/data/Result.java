@@ -1,5 +1,6 @@
 package dev.lankydan.flink.twitter.data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class Result {
@@ -28,14 +29,17 @@ public class Result {
         private int replyCount;
         private int likeCount;
         private int quoteCount;
+        private LocalDateTime createdAt;
+
         private String text;
 
-        public Tweet(List<String> mentions, int retweetCount, int replyCount, int likeCount, int quoteCount, String text) {
+        public Tweet(List<String> mentions, int retweetCount, int replyCount, int likeCount, int quoteCount, LocalDateTime createdAt, String text) {
             this.mentions = mentions;
             this.retweetCount = retweetCount;
             this.replyCount = replyCount;
             this.likeCount = likeCount;
             this.quoteCount = quoteCount;
+            this.createdAt = createdAt;
             this.text = text;
         }
 
@@ -47,6 +51,7 @@ public class Result {
                 ", replyCount=" + replyCount +
                 ", likeCount=" + likeCount +
                 ", quoteCount=" + quoteCount +
+                ", createdAt=" + createdAt +
                 ", text='" + text + '\'' +
                 "}\n";
         }

@@ -35,17 +35,18 @@ import java.util.stream.Collectors;
 public class Application {
 
     public static void main(String[] args) throws Exception {
+
         StreamExecutionEnvironment environment = StreamExecutionEnvironment
             .getExecutionEnvironment();
+
         DataStream<String> stream = environment.addSource(TwitterSourceCreator.create());
+
         DataStream<Tweet> tweetDataStream = stream
             // probably no point having this conversion anymore because of the enrichment that comes after
             .map(new ConvertJsonIntoTweet())
             // lazy filtering to include new tweets
-            .filter(tweet -> tweet.getCreatedAt() != null)
-            /*.filter(tweet -> tweet.getText().contains("Trump"))*/;
+            .filter(tweet -> tweet.getCreatedAt() != null);
 
-//        KeyedStream<EnrichedTweet, String> enriched =
         DataStream<EnrichedTweet> enriched =
             AsyncDataStream.unorderedWait(tweetDataStream, new EnrichTweet(), 5000, TimeUnit.MILLISECONDS)
                 .map(new ConvertJsonIntoEnrichedTweet())
@@ -55,24 +56,15 @@ public class Application {
                 .filter(tweet -> tweet.getData() != null)
                 // some enriched tweets don't have authors, not sure why but filter them out anyway
                 .filter(tweet -> tweet.getData().get(0).getAuthorId() != null);
-//                .keyBy(tweet -> tweet.getData().get(0).getAuthorId());
 
-        DataStream<Result> withAuthorTweets =
+        DataStream<Result> results =
             AsyncDataStream.unorderedWait(enriched, new GetRecentAuthorTweets(), 5000, TimeUnit.MILLISECONDS)
                 .filter(new FilterByRepeatedMentions())
                 .map(new MapToResult());
 
-        withAuthorTweets.print();
+        results.print();
         environment.execute();
     }
-
-    // don't think I can filter by user because I am only given a subset of all tweets
-    // therefore the chance of getting tweets by the same person is highly unlikely
-
-    // could do something that filters by hashtags or mentions
-
-    // then would it be possible to pull information about the user to se how many times
-    // they tweeted using that hashtag/mention
 
     public static class ConvertJsonIntoTweet extends RichMapFunction<String, Tweet> {
 
@@ -86,7 +78,6 @@ public class Application {
 
         @Override
         public Tweet map(String value) throws Exception {
-            // log something if rate limited but continue processing
             return mapper.readValue(value, Tweet.class);
         }
     }
@@ -176,19 +167,10 @@ public class Application {
         }
 
         @Override
-        public boolean filter(Tuple2<EnrichedTweet, EnrichedTweet> value) throws Exception {
+        public boolean filter(Tuple2<EnrichedTweet, EnrichedTweet> value) {
             EnrichedTweetData streamedTweetData = value.f0.getData().get(0);
             EnrichedTweet authorTweets = value.f1;
 
-//            if (streamedTweetData == null) {
-//                log.warn("Streamed tweet was null, {}", value.f0);
-//                return false;
-//            } else if (streamedTweet.getData().get(0) == null) {
-//                log.warn("Streamed tweet data .get(0) was null, {}", streamedTweet.getData());
-//                return false;
-//            }
-
-            // entities null
             try {
                 Entities entities = streamedTweetData.getEntities();
                 Set<String> streamedTweetMentions;
@@ -231,7 +213,7 @@ public class Application {
     public static class MapToResult extends RichMapFunction<Tuple2<EnrichedTweet, EnrichedTweet>, Result> {
 
         @Override
-        public Result map(Tuple2<EnrichedTweet, EnrichedTweet> value) throws Exception {
+        public Result map(Tuple2<EnrichedTweet, EnrichedTweet> value) {
             EnrichedTweetData streamedTweetData = value.f0.getData().get(0);
             EnrichedTweet authorTweets = value.f1;
 
@@ -248,6 +230,7 @@ public class Application {
                 streamedTweetData.getPublicMetrics().getReplyCount(),
                 streamedTweetData.getPublicMetrics().getLikeCount(),
                 streamedTweetData.getPublicMetrics().getQuoteCount(),
+                streamedTweetData.getCreatedAt(),
                 streamedTweetData.getText()
             );
 
@@ -264,6 +247,7 @@ public class Application {
                     data.getPublicMetrics().getReplyCount(),
                     data.getPublicMetrics().getLikeCount(),
                     data.getPublicMetrics().getQuoteCount(),
+                    data.getCreatedAt(),
                     data.getText()
                 );
             }).collect(Collectors.toList());
@@ -273,22 +257,4 @@ public class Application {
             return new Result(streamedTweetData.getAuthorId(), tweets);
         }
     }
-
-//    public static class KeyByUser extends Rich<String> {
-//
-//        private transient ObjectMapper mapper;
-//
-//        @Override
-//        public void open(Configuration parameters) {
-//            mapper = new ObjectMapper();
-//            mapper.registerModule(new JavaTimeModule());
-//        }
-//
-//
-//        @Override
-//        public boolean filter(String value) throws Exception {
-//            JsonNode json =  mapper.readValue(value, JsonNode.class);
-//            json.get("author_id");
-//        }
-//    }
 }
