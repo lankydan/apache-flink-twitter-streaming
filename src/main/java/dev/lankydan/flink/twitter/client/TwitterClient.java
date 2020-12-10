@@ -42,9 +42,8 @@ public class TwitterClient {
         Request request = new Request.Builder().get()
             .url(
                 "https://api.twitter.com/2/tweets?ids=" + id +
-                    "&expansions=geo.place_id,author_id" +
+                    "&expansions=author_id" +
                     "&tweet.fields=public_metrics,entities,created_at,author_id" +
-                    "&place.fields=contained_within,country,country_code,full_name,geo,id,name,place_type" +
                     "&user.fields=name,username,public_metrics")
             .addHeader("Authorization", "Bearer " + bearerToken)
             .build();
@@ -70,9 +69,8 @@ public class TwitterClient {
             .url(
                 "https://api.twitter.com/2/tweets/search/recent?query=from:" + authorId +
                     "&start_time=" + today +
-                    "&expansions=geo.place_id,author_id" +
+                    "&expansions=author_id" +
                     "&tweet.fields=public_metrics,entities,created_at,author_id" +
-                    "&place.fields=contained_within,country,country_code,full_name,geo,id,name,place_type" +
                     "&user.fields=name,username,public_metrics")
             .addHeader("Authorization", "Bearer " + bearerToken)
             .build();
