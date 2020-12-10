@@ -6,10 +6,14 @@ import java.util.List;
 public class Result {
 
     private String authorId;
+    private String name;
+    private String username;
     private List<Tweet> tweets;
 
-    public Result(String authorId, List<Tweet> tweets) {
+    public Result(String authorId, String name, String username, List<Tweet> tweets) {
         this.authorId = authorId;
+        this.name = name;
+        this.username = username;
         this.tweets = tweets;
     }
 
@@ -18,6 +22,8 @@ public class Result {
         return "========\n" +
             "Result{" +
             "authorId='" + authorId + '\'' +
+            "name='" + name + '\'' +
+            "username='" + username + '\'' +
             ",\n  tweets=" + tweets +
             "\n}\n" +
             "========\n";

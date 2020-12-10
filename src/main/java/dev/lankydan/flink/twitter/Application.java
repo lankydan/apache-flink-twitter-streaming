@@ -10,6 +10,7 @@ import dev.lankydan.flink.twitter.json.EnrichedTweetData;
 import dev.lankydan.flink.twitter.json.Entities;
 import dev.lankydan.flink.twitter.json.Mention;
 import dev.lankydan.flink.twitter.json.Tweet;
+import dev.lankydan.flink.twitter.json.User;
 import dev.lankydan.flink.twitter.source.TwitterSourceCreator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.api.common.functions.RichFilterFunction;
@@ -175,7 +176,6 @@ public class Application {
                 Entities entities = streamedTweetData.getEntities();
                 Set<String> streamedTweetMentions;
                 if (entities != null && entities.getMentions() != null) {
-
                     streamedTweetMentions = entities
                         .getMentions()
                         .stream()
@@ -196,7 +196,7 @@ public class Application {
                         if (data.getEntities() != null && data.getEntities().getMentions() != null) {
                             return data.getEntities().getMentions();
                         } else {
-                            return Collections.<Mention>emptyList();
+                            return List.<Mention>of();
                         }
                     })
                     .flatMap(Collection::stream)
@@ -254,7 +254,13 @@ public class Application {
 
             tweets.add(tweet);
 
-            return new Result(streamedTweetData.getAuthorId(), tweets);
+            User user = value.f0.getIncludes()
+                .getUsers()
+                .stream()
+                .filter(u -> u.getId().equals(streamedTweetData.getAuthorId()))
+                .findFirst().get();
+
+            return new Result(streamedTweetData.getAuthorId(), user.getName(), user.getUsername(), tweets);
         }
     }
 }
