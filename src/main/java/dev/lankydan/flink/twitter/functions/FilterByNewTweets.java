@@ -3,10 +3,15 @@ package dev.lankydan.flink.twitter.functions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.lankydan.flink.twitter.json.Tweet;
+import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
 
-public class ConvertJsonIntoTweet extends RichMapFunction<String, Tweet> {
+/**
+ * Filters the stream to only contain new tweets (tweet creation events) by removing all
+ * _delete_ tweets.
+ */
+public class FilterByNewTweets extends RichFilterFunction<String> {
 
     private transient ObjectMapper mapper;
 
@@ -17,7 +22,7 @@ public class ConvertJsonIntoTweet extends RichMapFunction<String, Tweet> {
     }
 
     @Override
-    public Tweet map(String value) throws Exception {
-        return mapper.readValue(value, Tweet.class);
+    public boolean filter(String value) throws Exception {
+        return !mapper.readTree(value).has("delete");
     }
 }

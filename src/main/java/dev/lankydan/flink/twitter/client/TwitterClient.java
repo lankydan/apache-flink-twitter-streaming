@@ -38,7 +38,7 @@ public class TwitterClient {
         bearerToken = json.get("access_token").asText();
     }
 
-    public CompletableFuture<String> enrich(String id) {
+    public CompletableFuture<String> enrich(long id) {
         Request request = new Request.Builder().get()
             .url(
                 "https://api.twitter.com/2/tweets?ids=" + id +
