@@ -3,7 +3,6 @@ package dev.lankydan.flink.twitter.functions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.lankydan.flink.twitter.client.TwitterClient;
-import dev.lankydan.flink.twitter.json.Tweet;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
