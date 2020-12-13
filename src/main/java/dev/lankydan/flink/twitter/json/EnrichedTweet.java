@@ -1,5 +1,6 @@
 package dev.lankydan.flink.twitter.json;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
@@ -35,5 +36,10 @@ public class EnrichedTweet {
             "data=" + data +
             ", includes=" + includes +
             '}';
+    }
+
+    @JsonIgnore
+    public EnrichedTweetData getSingleData() {
+        return data != null ? data.get(0) : null;
     }
 }
