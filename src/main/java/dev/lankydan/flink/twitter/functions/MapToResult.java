@@ -5,6 +5,7 @@ import dev.lankydan.flink.twitter.json.EnrichedTweet;
 import dev.lankydan.flink.twitter.json.EnrichedTweetData;
 import dev.lankydan.flink.twitter.json.Mention;
 import dev.lankydan.flink.twitter.json.User;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 
@@ -12,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MapToResult extends RichMapFunction<Tuple2<EnrichedTweet, EnrichedTweet>, Result> {
+public class MapToResult implements MapFunction<Tuple2<EnrichedTweet, EnrichedTweet>, Result> {
 
     @Override
     public Result map(Tuple2<EnrichedTweet, EnrichedTweet> value) {
