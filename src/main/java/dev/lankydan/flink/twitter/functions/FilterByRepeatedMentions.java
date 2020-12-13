@@ -31,40 +31,36 @@ public class FilterByRepeatedMentions extends RichFilterFunction<Tuple2<Enriched
         EnrichedTweetData streamedTweetData = value.f0.getData().get(0);
         EnrichedTweet authorTweets = value.f1;
 
-        try {
-            Entities entities = streamedTweetData.getEntities();
-            Set<String> streamedTweetMentions;
-            if (entities != null && entities.getMentions() != null) {
-                streamedTweetMentions = entities
-                    .getMentions()
-                    .stream()
-                    .map(Mention::getUsername)
-                    .collect(Collectors.toSet());
-            } else {
-                streamedTweetMentions = Collections.emptySet();
-            }
-
-            if (authorTweets.getData() == null) {
-                log.warn("Author tweets was null, {}", authorTweets.getData());
-                return false;
-            }
-
-            Set<String> authorTweetMentions = authorTweets.getData().stream()
-                .filter(data -> !data.getId().equals(streamedTweetData.getId()))
-                .map(data -> {
-                    if (data.getEntities() != null && data.getEntities().getMentions() != null) {
-                        return data.getEntities().getMentions();
-                    } else {
-                        return List.<Mention>of();
-                    }
-                })
-                .flatMap(Collection::stream)
+        Entities entities = streamedTweetData.getEntities();
+        Set<String> streamedTweetMentions;
+        if (entities != null && entities.getMentions() != null) {
+            streamedTweetMentions = entities
+                .getMentions()
+                .stream()
                 .map(Mention::getUsername)
                 .collect(Collectors.toSet());
-
-            return CollectionUtils.containsAny(streamedTweetMentions, authorTweetMentions);
-        } catch (NullPointerException e) {
-            throw e;
+        } else {
+            streamedTweetMentions = Collections.emptySet();
         }
+
+        if (authorTweets.getData() == null) {
+            log.warn("Author tweets was null, {}", authorTweets.getData());
+            return false;
+        }
+
+        Set<String> authorTweetMentions = authorTweets.getData().stream()
+            .filter(data -> !data.getId().equals(streamedTweetData.getId()))
+            .map(data -> {
+                if (data.getEntities() != null && data.getEntities().getMentions() != null) {
+                    return data.getEntities().getMentions();
+                } else {
+                    return List.<Mention>of();
+                }
+            })
+            .flatMap(Collection::stream)
+            .map(Mention::getUsername)
+            .collect(Collectors.toSet());
+
+        return CollectionUtils.containsAny(streamedTweetMentions, authorTweetMentions);
     }
 }
