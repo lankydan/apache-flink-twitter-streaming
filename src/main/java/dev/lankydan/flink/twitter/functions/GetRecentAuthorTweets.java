@@ -13,7 +13,7 @@ import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 
 import java.util.List;
 
-public class GetRecentAuthorTweets extends RichAsyncFunction<TweetWithMentions, Tuple2<EnrichedTweet, EnrichedTweet>> {
+public class GetRecentAuthorTweets extends RichAsyncFunction<TweetWithMentions, Tuple2<TweetWithMentions, EnrichedTweet>> {
 
     private transient ObjectMapper mapper;
     private transient TwitterClient client;
@@ -26,13 +26,12 @@ public class GetRecentAuthorTweets extends RichAsyncFunction<TweetWithMentions, 
     }
 
     @Override
-    public void asyncInvoke(TweetWithMentions input, ResultFuture<Tuple2<EnrichedTweet, EnrichedTweet>> resultFuture) {
-        EnrichedTweet streamedTweet = input.getTweet();
-        client.getRecentTweetsByAuthor(streamedTweet.getData().get(0).getAuthorId())
+    public void asyncInvoke(TweetWithMentions input, ResultFuture<Tuple2<TweetWithMentions, EnrichedTweet>> resultFuture) {
+        client.getRecentTweetsByAuthor(input.getTweet().getSingleData().getAuthorId())
             .thenAccept(result -> {
                 try {
                     EnrichedTweet tweets = mapper.readValue(result, EnrichedTweet.class);
-                    resultFuture.complete(List.of(Tuple2.of(streamedTweet, tweets)));
+                    resultFuture.complete(List.of(Tuple2.of(input, tweets)));
                 } catch (JsonProcessingException e) {
                     resultFuture.completeExceptionally(e);
                 }

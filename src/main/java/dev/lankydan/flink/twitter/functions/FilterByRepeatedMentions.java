@@ -1,5 +1,6 @@
 package dev.lankydan.flink.twitter.functions;
 
+import dev.lankydan.flink.twitter.data.TweetWithMentions;
 import dev.lankydan.flink.twitter.json.EnrichedTweet;
 import dev.lankydan.flink.twitter.json.EnrichedTweetData;
 import dev.lankydan.flink.twitter.json.Entities;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class FilterByRepeatedMentions extends RichFilterFunction<Tuple2<EnrichedTweet, EnrichedTweet>> {
+public class FilterByRepeatedMentions extends RichFilterFunction<Tuple2<TweetWithMentions, EnrichedTweet>> {
 
     private transient Logger log;
 
@@ -27,21 +28,9 @@ public class FilterByRepeatedMentions extends RichFilterFunction<Tuple2<Enriched
     }
 
     @Override
-    public boolean filter(Tuple2<EnrichedTweet, EnrichedTweet> value) {
-        EnrichedTweetData streamedTweetData = value.f0.getData().get(0);
+    public boolean filter(Tuple2<TweetWithMentions, EnrichedTweet> value) {
+        EnrichedTweetData streamedTweetData = value.f0.getTweet().getSingleData();
         EnrichedTweet authorTweets = value.f1;
-
-        Entities entities = streamedTweetData.getEntities();
-        Set<String> streamedTweetMentions;
-        if (entities != null && entities.getMentions() != null) {
-            streamedTweetMentions = entities
-                .getMentions()
-                .stream()
-                .map(Mention::getUsername)
-                .collect(Collectors.toSet());
-        } else {
-            streamedTweetMentions = Collections.emptySet();
-        }
 
         if (authorTweets.getData() == null) {
             log.warn("Author tweets was null, {}", authorTweets.getData());
@@ -61,6 +50,6 @@ public class FilterByRepeatedMentions extends RichFilterFunction<Tuple2<Enriched
             .map(Mention::getUsername)
             .collect(Collectors.toSet());
 
-        return CollectionUtils.containsAny(streamedTweetMentions, authorTweetMentions);
+        return CollectionUtils.containsAny(value.f0.getMentions(), authorTweetMentions);
     }
 }
