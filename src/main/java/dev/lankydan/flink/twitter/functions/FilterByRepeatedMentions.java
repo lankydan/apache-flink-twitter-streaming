@@ -2,29 +2,24 @@ package dev.lankydan.flink.twitter.functions;
 
 import dev.lankydan.flink.twitter.data.RecentTweet;
 import dev.lankydan.flink.twitter.data.StreamedTweet;
-import dev.lankydan.flink.twitter.json.EnrichedTweetData;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.flink.api.common.functions.FilterFunction;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-public class FilterByRepeatedMentions implements FilterFunction<Tuple2<StreamedTweet, List<RecentTweet>>> {
+public class FilterByRepeatedMentions implements MapFunction<Tuple2<StreamedTweet, List<RecentTweet>>, Tuple2<StreamedTweet, List<RecentTweet>>> {
 
     @Override
-    public boolean filter(Tuple2<StreamedTweet, List<RecentTweet>> value) {
-        EnrichedTweetData streamedTweetData = value.f0.getTweet();
-        List<RecentTweet> recentTweets = value.f1;
+    public Tuple2<StreamedTweet, List<RecentTweet>> map(Tuple2<StreamedTweet, List<RecentTweet>> value) {
+        StreamedTweet streamedTweet = value.f0;
 
-        Set<String> authorTweetMentions = recentTweets.stream()
-            .filter(tweet -> !tweet.getTweet().getId().equals(streamedTweetData.getId()))
-            .map(RecentTweet::getMentions)
-            .flatMap(Collection::stream)
-            .collect(Collectors.toSet());
+        List<RecentTweet> filteredRecentTweets =  value.f1.stream()
+            .filter(tweet -> !tweet.getTweet().getId().equals(streamedTweet.getTweet().getId()))
+            .filter(tweet -> CollectionUtils.containsAny(streamedTweet.getMentions(), tweet.getMentions()))
+            .collect(Collectors.toList());
 
-        return CollectionUtils.containsAny(value.f0.getMentions(), authorTweetMentions);
+        return Tuple2.of(streamedTweet, filteredRecentTweets);
     }
 }

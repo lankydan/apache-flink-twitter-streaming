@@ -4,6 +4,7 @@ import dev.lankydan.flink.twitter.data.Result;
 import dev.lankydan.flink.twitter.data.StreamedTweet;
 import dev.lankydan.flink.twitter.functions.ConvertJsonIntoEnrichedTweet;
 import dev.lankydan.flink.twitter.functions.EnrichTweet;
+import dev.lankydan.flink.twitter.functions.FilterByHasMentions;
 import dev.lankydan.flink.twitter.functions.MapToRecentTweets;
 import dev.lankydan.flink.twitter.functions.MapToStreamedTweets;
 import dev.lankydan.flink.twitter.functions.FilterByNewTweets;
@@ -44,7 +45,8 @@ public class Application {
         DataStream<Result> results =
             AsyncDataStream.unorderedWait(enriched, new GetRecentAuthorTweets(), 5000, TimeUnit.MILLISECONDS)
                 .map(new MapToRecentTweets())
-                .filter(new FilterByRepeatedMentions())
+                .map(new FilterByRepeatedMentions())
+                .filter(new FilterByHasMentions())
                 .map(new MapToResults());
 
         results.print();
