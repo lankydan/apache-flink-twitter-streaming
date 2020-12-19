@@ -1,14 +1,15 @@
 package dev.lankydan.flink.twitter;
 
 import dev.lankydan.flink.twitter.data.Result;
-import dev.lankydan.flink.twitter.data.TweetWithMentions;
+import dev.lankydan.flink.twitter.data.StreamedTweet;
 import dev.lankydan.flink.twitter.functions.ConvertJsonIntoEnrichedTweet;
 import dev.lankydan.flink.twitter.functions.EnrichTweet;
-import dev.lankydan.flink.twitter.functions.ExtractMentionsFromTweet;
+import dev.lankydan.flink.twitter.functions.MapToRecentTweets;
+import dev.lankydan.flink.twitter.functions.MapToStreamedTweets;
 import dev.lankydan.flink.twitter.functions.FilterByNewTweets;
 import dev.lankydan.flink.twitter.functions.FilterByRepeatedMentions;
 import dev.lankydan.flink.twitter.functions.GetRecentAuthorTweets;
-import dev.lankydan.flink.twitter.functions.MapToResult;
+import dev.lankydan.flink.twitter.functions.MapToResults;
 import dev.lankydan.flink.twitter.json.EnrichedTweetData;
 import dev.lankydan.flink.twitter.source.TwitterSourceCreator;
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;
@@ -28,7 +29,7 @@ public class Application {
         DataStream<String> stream = environment.addSource(TwitterSourceCreator.create())
             .filter(new FilterByNewTweets());
 
-        DataStream<TweetWithMentions> enriched =
+        DataStream<StreamedTweet> enriched =
             AsyncDataStream.unorderedWait(stream, new EnrichTweet(), 5000, TimeUnit.MILLISECONDS)
                 .map(new ConvertJsonIntoEnrichedTweet())
                 // Ignore rate limit errors
@@ -38,12 +39,13 @@ public class Application {
                     EnrichedTweetData data = tweet.getSingleData();
                     return data != null && data.getAuthorId() != null;
                 })
-                .map(new ExtractMentionsFromTweet());
+                .map(new MapToStreamedTweets());
 
         DataStream<Result> results =
             AsyncDataStream.unorderedWait(enriched, new GetRecentAuthorTweets(), 5000, TimeUnit.MILLISECONDS)
+                .map(new MapToRecentTweets())
                 .filter(new FilterByRepeatedMentions())
-                .map(new MapToResult());
+                .map(new MapToResults());
 
         results.print();
         environment.execute();

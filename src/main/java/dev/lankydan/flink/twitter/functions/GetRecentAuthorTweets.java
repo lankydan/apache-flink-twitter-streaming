@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.lankydan.flink.twitter.client.TwitterClient;
-import dev.lankydan.flink.twitter.data.TweetWithMentions;
+import dev.lankydan.flink.twitter.data.StreamedTweet;
 import dev.lankydan.flink.twitter.json.EnrichedTweet;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
@@ -13,7 +13,7 @@ import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 
 import java.util.List;
 
-public class GetRecentAuthorTweets extends RichAsyncFunction<TweetWithMentions, Tuple2<TweetWithMentions, EnrichedTweet>> {
+public class GetRecentAuthorTweets extends RichAsyncFunction<StreamedTweet, Tuple2<StreamedTweet, EnrichedTweet>> {
 
     private transient ObjectMapper mapper;
     private transient TwitterClient client;
@@ -26,8 +26,8 @@ public class GetRecentAuthorTweets extends RichAsyncFunction<TweetWithMentions, 
     }
 
     @Override
-    public void asyncInvoke(TweetWithMentions input, ResultFuture<Tuple2<TweetWithMentions, EnrichedTweet>> resultFuture) {
-        client.getRecentTweetsByAuthor(input.getTweet().getSingleData().getAuthorId())
+    public void asyncInvoke(StreamedTweet input, ResultFuture<Tuple2<StreamedTweet, EnrichedTweet>> resultFuture) {
+        client.getRecentTweetsByAuthor(input.getTweet().getAuthorId())
             .thenAccept(result -> {
                 try {
                     EnrichedTweet tweets = mapper.readValue(result, EnrichedTweet.class);
