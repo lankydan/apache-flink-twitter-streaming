@@ -11,10 +11,45 @@ public class Result {
     private String username;
     private List<Tweet> tweets;
 
+    public Result() {
+    }
+
     public Result(String authorId, String name, String username, List<Tweet> tweets) {
         this.authorId = authorId;
         this.name = name;
         this.username = username;
+        this.tweets = tweets;
+    }
+
+    public String getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public List<Tweet> getTweets() {
+        return tweets;
+    }
+
+    public void setTweets(List<Tweet> tweets) {
         this.tweets = tweets;
     }
 
@@ -47,6 +82,62 @@ public class Result {
             this.likeCount = likeCount;
             this.quoteCount = quoteCount;
             this.createdAt = createdAt;
+            this.text = text;
+        }
+
+        public Set<String> getMentions() {
+            return mentions;
+        }
+
+        public void setMentions(Set<String> mentions) {
+            this.mentions = mentions;
+        }
+
+        public int getRetweetCount() {
+            return retweetCount;
+        }
+
+        public void setRetweetCount(int retweetCount) {
+            this.retweetCount = retweetCount;
+        }
+
+        public int getReplyCount() {
+            return replyCount;
+        }
+
+        public void setReplyCount(int replyCount) {
+            this.replyCount = replyCount;
+        }
+
+        public int getLikeCount() {
+            return likeCount;
+        }
+
+        public void setLikeCount(int likeCount) {
+            this.likeCount = likeCount;
+        }
+
+        public int getQuoteCount() {
+            return quoteCount;
+        }
+
+        public void setQuoteCount(int quoteCount) {
+            this.quoteCount = quoteCount;
+        }
+
+        public LocalDateTime getCreatedAt() {
+            return createdAt;
+        }
+
+        public void setCreatedAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
             this.text = text;
         }
 

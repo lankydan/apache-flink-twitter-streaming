@@ -2,7 +2,6 @@ package dev.lankydan.flink.twitter.functions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import dev.lankydan.flink.twitter.Application;
 import dev.lankydan.flink.twitter.json.EnrichedTweet;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
@@ -27,8 +26,6 @@ public class ConvertJsonIntoEnrichedTweet extends RichMapFunction<String, Enrich
             log.info("RATE LIMITED");
             return null;
         }
-//            JsonNode node = mapper.readValue(value, JsonNode.class);
-//            return mapper.treeToValue(node.withArray("data").get(0), EnrichedTweet.class);
         return mapper.readValue(value, EnrichedTweet.class);
     }
 }
